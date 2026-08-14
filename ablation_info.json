@@ -1,0 +1,197 @@
+{
+  "variants": {
+    "HSA-CP": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true
+    },
+    "Add_Graph_Expert": {
+      "experts": [
+        "asset",
+        "sector",
+        "graph",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true
+    },
+    "Add_Regime_Expert": {
+      "experts": [
+        "asset",
+        "sector",
+        "regime",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true
+    },
+    "No_Sector": {
+      "experts": [
+        "asset",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true
+    },
+    "No_Global": {
+      "experts": [
+        "asset",
+        "sector"
+      ],
+      "hedge": true,
+      "controller": true
+    },
+    "No_Hedge_EqualWeights": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": false,
+      "controller": true
+    },
+    "No_Controller": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": false
+    },
+    "Asset_Controller_Only": {
+      "experts": [
+        "asset"
+      ],
+      "hedge": false,
+      "controller": true
+    },
+    "Sector_Controller_Only": {
+      "experts": [
+        "sector"
+      ],
+      "hedge": false,
+      "controller": true
+    }
+  },
+  "sensitivity_grid": {
+    "Controller_0.05": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.04
+    },
+    "Controller_0.08": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.08,
+      "hedge_eta": 0.04
+    },
+    "Controller_0.12": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.12,
+      "hedge_eta": 0.04
+    },
+    "Controller_0.18": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.18,
+      "hedge_eta": 0.04
+    },
+    "Controller_0.25": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.25,
+      "hedge_eta": 0.04
+    },
+    "Hedge_0.01": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.01
+    },
+    "Hedge_0.02": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.02
+    },
+    "Hedge_0.04": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.04
+    },
+    "Hedge_0.08": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.08
+    },
+    "Hedge_0.16": {
+      "experts": [
+        "asset",
+        "sector",
+        "global"
+      ],
+      "hedge": true,
+      "controller": true,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.16
+    }
+  },
+  "runtime_seconds": 38.42629361152649,
+  "selected_variant": "HSA-CP",
+  "selection_policy": "The feedback controller is constitutive and No_Controller is diagnostic only. Among controller-preserving variants, select the lowest validation interval score with absolute coverage gap <= 0.005; if none qualify, select the lowest score. Selection uses only 2024-06-03 through 2024-12-31 after a 2024-01-02 through 2024-05-31 burn-in.",
+  "test_policy": "No architecture choice uses 2025; burn online states over all of 2024, then evaluate 2025."
+}

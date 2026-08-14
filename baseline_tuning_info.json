@@ -1,0 +1,23 @@
+{
+  "selection_rule": "Lowest validation interval score among rates with absolute coverage gap <= 0.005",
+  "period": [
+    "2024-06-03",
+    "2024-12-31"
+  ],
+  "selected_aci_gamma": 0.005,
+  "selected_pcontrol_eta": 0.05,
+  "aci_grid": [
+    0.001,
+    0.0025,
+    0.005,
+    0.01,
+    0.02
+  ],
+  "pcontrol_grid": [
+    0.01,
+    0.025,
+    0.05,
+    0.1,
+    0.2
+  ]
+}

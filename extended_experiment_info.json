@@ -1,0 +1,37 @@
+{
+  "primary_recomputed_absolute_differences": {
+    "Coverage": 0.0,
+    "Coverage_Gap": 4.7921736023859296e-17,
+    "Mean_Width": 4.163336342344337e-17,
+    "Median_Width": 1.0408340855860843e-16,
+    "Interval_Score": 8.326672684688674e-17,
+    "ALCE20": 9.020562075079397e-17,
+    "XLCE20": 3.469446951953614e-17,
+    "Worst_Sector_Coverage": 0.0
+  },
+  "chronology": {
+    "point_fit_end": "2023-12-31",
+    "online_burn_start": "2024-01-01",
+    "online_burn_end": "2024-12-31",
+    "evaluation": [
+      "2025-01-01",
+      "2025-12-31"
+    ]
+  },
+  "fixed_configuration": {
+    "asset_window": 126,
+    "sector_window": 63,
+    "market_window": 5,
+    "hedge_rate": 0.04,
+    "controller_rate": 0.05
+  },
+  "benchmark_environment": {
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.39",
+    "processor": "x86_64",
+    "logical_cpu_count": 9,
+    "python": "3.12.13",
+    "numpy": "2.3.5",
+    "note": "Machine-specific single-process reference timing; not a hardware-independent claim."
+  },
+  "runtime_seconds": 36.93414044380188
+}

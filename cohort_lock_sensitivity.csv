@@ -1,0 +1,10 @@
+Requested_Cutoff,Last_Trading_Session,Availability_Threshold,Sessions,N_Selected,Overlap_With_Primary,Added_Versus_Primary,Removed_Versus_Primary,Jaccard_With_Primary,Primary_Configuration
+2024-04-30,2024-04-30,0.98,83,501,501,0,0,1.0,False
+2024-04-30,2024-04-30,0.99,83,501,501,0,0,1.0,False
+2024-04-30,2024-04-30,1.0,83,501,501,0,0,1.0,False
+2024-05-23,2024-05-23,0.98,100,501,501,0,0,1.0,False
+2024-05-23,2024-05-23,0.99,100,501,501,0,0,1.0,False
+2024-05-23,2024-05-23,1.0,100,501,501,0,0,1.0,False
+2024-05-31,2024-05-31,0.98,105,501,501,0,0,1.0,False
+2024-05-31,2024-05-31,0.99,105,501,501,0,0,1.0,True
+2024-05-31,2024-05-31,1.0,105,487,487,0,14,0.9720558882235529,False

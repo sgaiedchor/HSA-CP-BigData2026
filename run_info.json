@@ -1,0 +1,77 @@
+{
+  "method": "HSA-CP",
+  "method_full_name": "Hierarchical Sector-Adaptive Conformal Prediction",
+  "target_coverage": 0.9,
+  "tickers": 501,
+  "universe_lock_rule": "At least 99% observed log returns on 2024-01-01 through 2024-05-31; no 2025 availability filter",
+  "train_rows": 583981,
+  "train_end": "2023-12-31",
+  "calibration_period": [
+    "2024-01-01",
+    "2024-05-31"
+  ],
+  "validation_period": [
+    "2024-06-03",
+    "2024-12-31"
+  ],
+  "test_period": [
+    "2025-01-01",
+    "2025-12-31"
+  ],
+  "features": [
+    "ret_lag1",
+    "ret_lag2",
+    "ret_lag5",
+    "mean5_lag1",
+    "mean21_lag1",
+    "vol5_lag1",
+    "vol21_lag1",
+    "market_lag1",
+    "sector_lag1",
+    "vix_lag1",
+    "market_vol21_lag1",
+    "regime_low",
+    "regime_normal",
+    "regime_high",
+    "sector_Communication Services",
+    "sector_Consumer Discretionary",
+    "sector_Consumer Staples",
+    "sector_Energy",
+    "sector_Financials",
+    "sector_Health Care",
+    "sector_Industrials",
+    "sector_Information Technology",
+    "sector_Materials",
+    "sector_Real Estate",
+    "sector_Utilities"
+  ],
+  "point_model": "Pooled standardized ridge regression, alpha=100",
+  "point_model_tuning": [
+    {
+      "Alpha": 1.0,
+      "Validation_2023_MAE": 0.01271373126655817
+    },
+    {
+      "Alpha": 10.0,
+      "Validation_2023_MAE": 0.01271370705217123
+    },
+    {
+      "Alpha": 25.0,
+      "Validation_2023_MAE": 0.012713668867945671
+    },
+    {
+      "Alpha": 100.0,
+      "Validation_2023_MAE": 0.012713471427559853
+    }
+  ],
+  "online_rates": {
+    "aci_gamma": 0.005,
+    "pcontrol_eta": 0.05,
+    "hsa_hedge_eta": 0.04,
+    "hsa_controller_gamma": 0.05
+  },
+  "graph": "Top-5 training-period correlations across the full eligible universe",
+  "architecture_selection": "Asset, sector, and global experts with sector-level Hedge aggregation and feedback control; selected on 2024-06-03 through 2024-12-31 before the 2025 evaluation.",
+  "runtime_seconds": 35.50051784515381,
+  "randomness": "Deterministic predictions; block-bootstrap seeds are fixed and recorded"
+}
