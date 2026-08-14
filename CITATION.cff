@@ -1,0 +1,8 @@
+cff-version: 1.2.0
+title: "HSA-CP: Hierarchical Sector-Adaptive Conformal Prediction for Large Cross-Sections of Equity Returns"
+message: "Please cite the conference paper when using this code or its experimental protocol."
+type: software
+authors:
+  - family-names: "Gaied Chortane"
+    given-names: "Sana"
+date-released: 2026-08-14
