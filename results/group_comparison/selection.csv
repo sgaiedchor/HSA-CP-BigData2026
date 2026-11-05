@@ -1,0 +1,2 @@
+selection_rule,selected_asset_gamma,selected_decay
+Coverage gap <= 0.005; maximize validation asset P10; break ties by interval score,0.0,1.0

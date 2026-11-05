@@ -1,0 +1,5 @@
+Partition,Start,End,Sessions
+Point-model training,2019-04-01,2023-12-29,1197
+Initial calibration,2024-01-02,2024-05-31,105
+Architecture validation,2024-06-03,2024-12-31,147
+Final test,2025-01-02,2025-12-31,250

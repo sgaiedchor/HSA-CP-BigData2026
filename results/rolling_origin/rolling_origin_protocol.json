@@ -1,0 +1,86 @@
+[
+  {
+    "fold": "test_2024",
+    "tune_train_end": "2021-12-31",
+    "tune_valid_start": "2022-01-01",
+    "train_end": "2022-12-31",
+    "calib_start": "2023-01-01",
+    "calib_end": "2023-05-31",
+    "valid_start": "2023-06-01",
+    "valid_end": "2023-12-31",
+    "test_start": "2024-01-01",
+    "test_end": "2024-12-31",
+    "n_assets": 499,
+    "n_train_rows": 459026,
+    "selected_ridge_alpha": 100.0,
+    "ridge_tuning": [
+      {
+        "alpha": 1.0,
+        "validation_mae": 0.01782434806227684
+      },
+      {
+        "alpha": 10.0,
+        "validation_mae": 0.017824221402406693
+      },
+      {
+        "alpha": 25.0,
+        "validation_mae": 0.01782401092350483
+      },
+      {
+        "alpha": 100.0,
+        "validation_mae": 0.017822962254285812
+      }
+    ],
+    "validation_selected_online_rates": {
+      "aci_gamma": 0.001,
+      "pcontrol_eta": 0.025,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.01,
+      "hsa_validation_coverage": 0.9031532452660422,
+      "hsa_validation_score": 0.07775903729415168
+    },
+    "fixed_snapshot_caveat": true
+  },
+  {
+    "fold": "test_2025",
+    "tune_train_end": "2022-12-31",
+    "tune_valid_start": "2023-01-01",
+    "train_end": "2023-12-31",
+    "calib_start": "2024-01-01",
+    "calib_end": "2024-05-31",
+    "valid_start": "2024-06-03",
+    "valid_end": "2024-12-31",
+    "test_start": "2025-01-01",
+    "test_end": "2025-12-31",
+    "n_assets": 501,
+    "n_train_rows": 583981,
+    "selected_ridge_alpha": 100.0,
+    "ridge_tuning": [
+      {
+        "alpha": 1.0,
+        "validation_mae": 0.01271373126655817
+      },
+      {
+        "alpha": 10.0,
+        "validation_mae": 0.01271370705217123
+      },
+      {
+        "alpha": 25.0,
+        "validation_mae": 0.012713668867945671
+      },
+      {
+        "alpha": 100.0,
+        "validation_mae": 0.012713471427559853
+      }
+    ],
+    "validation_selected_online_rates": {
+      "aci_gamma": 0.005,
+      "pcontrol_eta": 0.05,
+      "controller_gamma": 0.05,
+      "hedge_eta": 0.04,
+      "hsa_validation_coverage": 0.9037142577770327,
+      "hsa_validation_score": 0.08451237838738816
+    },
+    "fixed_snapshot_caveat": true
+  }
+]

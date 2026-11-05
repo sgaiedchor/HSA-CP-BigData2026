@@ -1,0 +1,33 @@
+{
+  "selected_hist_gradient_boosting": {
+    "learning_rate": 0.05,
+    "max_iter": 100,
+    "max_leaf_nodes": 15,
+    "l2_regularization": 1.0
+  },
+  "tuning": [
+    {
+      "learning_rate": 0.05,
+      "max_iter": 100,
+      "max_leaf_nodes": 15,
+      "l2_regularization": 1.0,
+      "validation_2023_mae": 0.012512382196720193
+    },
+    {
+      "learning_rate": 0.05,
+      "max_iter": 100,
+      "max_leaf_nodes": 31,
+      "l2_regularization": 1.0,
+      "validation_2023_mae": 0.012529906616064887
+    },
+    {
+      "learning_rate": 0.03,
+      "max_iter": 150,
+      "max_leaf_nodes": 31,
+      "l2_regularization": 1.0,
+      "validation_2023_mae": 0.012521245768196335
+    }
+  ],
+  "ridge_training_rows": 583981,
+  "hist_gradient_boosting_training_rows": 583981
+}
