@@ -81,16 +81,14 @@ outputs. The source licences and redistribution permissions were reviewed by
 the dataset depositor before this public release. Source attribution and
 provenance are documented in `DATA_ACCESS_NOTICE.md` and in the workbook.
 
-After creating the GitHub repository, add this sentence to the reproducibility
-paragraph in `paper.tex`:
+The complete reproducibility package is available in this repository:
 
-```latex
-Code and documented experimental outputs are available at
-\url{https://github.com/ACCOUNT/hsa-cp}.
-```
+https://github.com/sgaiedchor/HSA-CP-BigData2026
 
-Replace `ACCOUNT` with the actual account and compile again. Do not insert a
-placeholder URL in the submitted PDF.
+It includes the analysis data, experimental code, machine-readable results,
+figures, tables, and documentation required to reproduce the reported
+experiments. A versioned archival DOI will be added after the first Zenodo
+release.
 
 ## File map
 
