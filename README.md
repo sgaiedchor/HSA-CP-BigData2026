@@ -73,21 +73,24 @@ official class was unavailable in the local runtime. It is a visual/page-limit
 check, not a replacement for the final Overleaf compile with official
 `IEEEtran`.
 
-## Public repository and data terms
+## Public repository and data
 
-No GitHub URL is embedded in the manuscript because no real repository URL
-was supplied. After creating the repository, add this sentence to the
-reproducibility paragraph in `paper.tex`:
+This release includes the fixed analysis workbook, the corrected results
+workbook, the complete experimental code, and the locked machine-readable
+outputs. The source licences and redistribution permissions were reviewed by
+the dataset depositor before this public release. Source attribution and
+provenance are documented in `DATA_ACCESS_NOTICE.md` and in the workbook.
+
+After creating the GitHub repository, add this sentence to the reproducibility
+paragraph in `paper.tex`:
 
 ```latex
 Code and documented experimental outputs are available at
 \url{https://github.com/ACCOUNT/hsa-cp}.
 ```
 
-Replace `ACCOUNT` with the actual account and compile again. Review the market
-data provider's terms before publishing the analysis workbook or derived
-returns. The code, locked result tables, and figures can be published
-separately from restricted data.
+Replace `ACCOUNT` with the actual account and compile again. Do not insert a
+placeholder URL in the submitted PDF.
 
 ## File map
 

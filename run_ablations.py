@@ -44,6 +44,7 @@ VARIANTS = {
     "No_Global": {"experts": ["asset", "sector"], "hedge": True, "controller": True},
     "No_Hedge_EqualWeights": {"experts": ["asset", "sector", "global"], "hedge": False, "controller": True},
     "No_Controller": {"experts": ["asset", "sector", "global"], "hedge": True, "controller": False},
+    "EqualWeights_NoController": {"experts": ["asset", "sector", "global"], "hedge": False, "controller": False},
     "Asset_Controller_Only": {"experts": ["asset"], "hedge": False, "controller": True},
     "Sector_Controller_Only": {"experts": ["sector"], "hedge": False, "controller": True},
 }
@@ -246,7 +247,8 @@ def main():
     # The feedback controller is a constitutive component tied to Proposition 1,
     # not an optional expert chosen for its test score.  No_Controller is kept
     # as a diagnostic ablation but is excluded from architecture selection.
-    selection_pool = validation_results[validation_results["Variant"] != "No_Controller"]
+    controller_preserving = [name for name, cfg in VARIANTS.items() if cfg["controller"]]
+    selection_pool = validation_results[validation_results["Variant"].isin(controller_preserving)]
     eligible = selection_pool[selection_pool["Coverage_Gap"] <= 0.005]
     if eligible.empty:
         eligible = selection_pool

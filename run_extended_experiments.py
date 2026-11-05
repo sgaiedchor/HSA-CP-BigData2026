@@ -54,13 +54,15 @@ def hsa_quantiles(
     date_pos: int,
     sector_ids: np.ndarray,
     alpha: float,
+    windows: tuple[int, int, int] = (126, 63, 5),
 ) -> np.ndarray:
     """Asset, sector, and market quantiles used by the selected architecture."""
     n_assets = score_history.shape[1]
     out = np.full((n_assets, 3), np.nan, dtype=float)
-    asset_start = max(0, date_pos - 126)
-    sector_start = max(0, date_pos - 63)
-    market_start = max(0, date_pos - 5)
+    asset_window, sector_window, market_window = windows
+    asset_start = max(0, date_pos - asset_window)
+    sector_start = max(0, date_pos - sector_window)
+    market_start = max(0, date_pos - market_window)
     for i in range(n_assets):
         out[i, 0] = conformal_quantile(score_history[asset_start:date_pos, i], alpha)
     for sector_id in np.unique(sector_ids):
@@ -74,7 +76,15 @@ def hsa_quantiles(
     return np.where(np.isfinite(out), out, fallback)
 
 
-def evaluate_hsa(panel, pred: np.ndarray, scale: np.ndarray, alpha: float) -> dict[str, float]:
+def evaluate_hsa(
+    panel,
+    pred: np.ndarray,
+    scale: np.ndarray,
+    alpha: float,
+    windows: tuple[int, int, int] = (126, 63, 5),
+    eval_start: pd.Timestamp = TEST_START,
+    eval_end: pd.Timestamp = TEST_END,
+) -> dict[str, float]:
     """Run the selected HSA-CP architecture at one alpha without re-tuning."""
     dates = panel.returns.index
     y = panel.returns.to_numpy(dtype=float)
@@ -84,8 +94,8 @@ def evaluate_hsa(panel, pred: np.ndarray, scale: np.ndarray, alpha: float) -> di
     sector_names = list(categories.categories)
     n_sectors = len(sector_names)
     n_assets = len(panel.eligible)
-    burn_positions = np.where((dates >= CALIB_START) & (dates < TEST_START))[0]
-    test_positions = np.where((dates >= TEST_START) & (dates <= TEST_END))[0]
+    burn_positions = np.where((dates >= CALIB_START) & (dates < eval_start))[0]
+    test_positions = np.where((dates >= eval_start) & (dates <= eval_end))[0]
     all_positions = np.concatenate([burn_positions, test_positions])
     test_set = set(int(pos) for pos in test_positions)
 
@@ -95,7 +105,7 @@ def evaluate_hsa(panel, pred: np.ndarray, scale: np.ndarray, alpha: float) -> di
     hi_rows: list[np.ndarray] = []
 
     for pos in all_positions:
-        qs = hsa_quantiles(scores, int(pos), sector_ids, alpha)
+        qs = hsa_quantiles(scores, int(pos), sector_ids, alpha, windows=windows)
         q_final = np.full(n_assets, np.nan, dtype=float)
         for sector_id in range(n_sectors):
             members = sector_ids == sector_id
@@ -166,6 +176,9 @@ def evaluate_hsa(panel, pred: np.ndarray, scale: np.ndarray, alpha: float) -> di
         "Worst_Sector_Coverage": float(np.nanmin(sector_coverage)),
         "Best_Sector_Coverage": float(np.nanmax(sector_coverage)),
         "N_Valid_Intervals": int(valid.sum()),
+        "Asset_Window": windows[0],
+        "Sector_Window": windows[1],
+        "Market_Window": windows[2],
     }
 
 
@@ -245,8 +258,17 @@ def benchmark_scalability(panel, pred: np.ndarray, scale: np.ndarray) -> pd.Data
     repeats = 5
     rows = []
 
-    for n_assets in (50, 100, 250, len(panel.eligible)):
-        subset = stratified_subset(full_sector_ids, n_assets)
+    observed_n = len(panel.eligible)
+    for n_assets in (50, 100, 250, observed_n, 1000, 2000, 5000):
+        if n_assets <= observed_n:
+            subset = stratified_subset(full_sector_ids, n_assets)
+            synthetic_replication = False
+        else:
+            # Deterministic column replication isolates computational scaling
+            # beyond the observed universe. It is not an additional financial
+            # validation sample and is labelled accordingly in every output.
+            subset = np.arange(n_assets, dtype=int) % observed_n
+            synthetic_replication = True
         y = y_all[:, subset]
         scores = full_scores[:, subset]
         sub_scale = scale[:, subset]
@@ -307,6 +329,7 @@ def benchmark_scalability(panel, pred: np.ndarray, scale: np.ndarray) -> pd.Data
                 / len(positions)
             ),
             "Asset_Intervals_Per_Second": n_assets / (median_ms / 1000),
+            "Synthetic_Replication": synthetic_replication,
         })
 
     result = pd.DataFrame(rows)

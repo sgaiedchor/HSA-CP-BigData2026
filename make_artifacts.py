@@ -159,7 +159,12 @@ def rolling_coverage_figure() -> None:
     for method in ("HSA-CP", "PControl", "SectorCP", "ACI"):
         ax.plot(rolling.index, rolling[method], label=method, color=COLORS[method], lw=1.55)
     ax.axhline(0.90, color="black", ls="--", lw=1.0, label="Nominal 90%")
-    ax.set_ylim(0.84, 0.95)
+    # Keep every trajectory inside the axes; the accepted-version plot clipped
+    # peaks above 0.95 and was correctly flagged by a reviewer.
+    finite = rolling[["HSA-CP", "PControl", "SectorCP", "ACI"]].to_numpy()
+    lower = min(0.84, float(np.nanmin(finite)) - 0.005)
+    upper = max(0.95, float(np.nanmax(finite)) + 0.005)
+    ax.set_ylim(lower, upper)
     ax.set_ylabel("20-day coverage")
     ax.set_xlabel("2025 evaluation date")
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=2))
@@ -171,7 +176,9 @@ def rolling_coverage_figure() -> None:
 
 def robustness_and_weights_figure() -> None:
     sector = pd.read_csv(RESULTS / "sector_results.csv")
+    methods_sector = ["HSA-CP", "ACI", "PControl", "SectorCP"]
     hsa_sector = sector[sector["Method"] == "HSA-CP"].sort_values("Coverage")
+    sector_order = hsa_sector["Sector"].tolist()
     paths = np.load(RESULTS / "online_paths.npz")
     dates = pd.to_datetime(paths["test_dates"])
     weights = paths["weights"].mean(axis=1)
@@ -179,15 +186,21 @@ def robustness_and_weights_figure() -> None:
 
     fig, axes = plt.subplots(1, 2, figsize=(7.15, 2.85), gridspec_kw={"width_ratios": [1.08, 1.0]})
     ax = axes[0]
-    y_pos = np.arange(len(hsa_sector))
-    ax.barh(y_pos, hsa_sector["Coverage"], color="#56B4E9", height=0.68)
-    ax.axvline(0.90, color="black", ls="--", lw=1.0)
+    y_pos = np.arange(len(sector_order))
+    offsets = np.linspace(-0.24, 0.24, len(methods_sector))
+    markers = {"HSA-CP": "o", "ACI": "s", "PControl": "^", "SectorCP": "D"}
+    for off, method in zip(offsets, methods_sector):
+        part = sector[sector["Method"] == method].set_index("Sector").reindex(sector_order)
+        gap = np.abs(part["Coverage"].to_numpy() - 0.90)
+        ax.scatter(gap, y_pos + off, s=13, marker=markers[method],
+                   color=COLORS[method], label=method, zorder=3)
     ax.set_yticks(y_pos)
-    ax.set_yticklabels(hsa_sector["Sector"], fontsize=6.9)
-    ax.set_xlim(0.89, 0.91)
-    ax.set_xlabel("HSA-CP coverage")
+    ax.set_yticklabels(sector_order, fontsize=6.3)
+    ax.set_xlim(left=0)
+    ax.set_xlabel(r"$|$sector coverage $-0.90|$")
     ax.grid(axis="x", color="#E5E5E5", lw=0.6)
-    ax.set_title("(a) Sector robustness", fontsize=9)
+    ax.legend(frameon=False, ncol=2, fontsize=6.2, loc="lower right")
+    ax.set_title("(a) Sector calibration gaps", fontsize=9)
 
     ax = axes[1]
     expert_colors = {"asset": "#0072B2", "sector": "#009E73", "global": "#D55E00"}

@@ -424,6 +424,8 @@ def evaluate(panel: Panel, pred: np.ndarray, scale: np.ndarray, neighbors: np.nd
     sector_records = []
     regime_records = []
     daily_losses = {}
+    coverage_paths = {}
+    width_paths = {}
     regime_test = regime_labels[test_positions]
     for method in methods:
         valid_test = (
@@ -436,6 +438,8 @@ def evaluate(panel: Panel, pred: np.ndarray, scale: np.ndarray, neighbors: np.nd
         width = np.where(valid_test, width, np.nan)
         loss = np.where(valid_test, loss, np.nan)
         daily_losses[method] = np.nanmean(loss, axis=1)
+        coverage_paths[method] = covered
+        width_paths[method] = width
         rolling_asset_cov = pd.DataFrame(covered).rolling(20, min_periods=10).mean().to_numpy()
         daily_cross_cov = np.nanmean(covered, axis=1)
         rolling_cross_cov = pd.Series(daily_cross_cov).rolling(20, min_periods=10).mean().to_numpy()
@@ -549,6 +553,10 @@ def evaluate(panel: Panel, pred: np.ndarray, scale: np.ndarray, neighbors: np.nd
         "sector_names": sector_names,
         "expert_names": list(proposed_experts),
         "test_dates": test_dates,
+        "coverage_methods": methods,
+        "coverage_cube": np.stack([coverage_paths[m] for m in methods]),
+        "width_cube": np.stack([width_paths[m] for m in methods]),
+        "sector_ids": sector_ids,
     }
     return (
         summary,
@@ -596,6 +604,10 @@ def main():
         sector_names=np.asarray(paths["sector_names"], dtype=str),
         expert_names=np.asarray(paths["expert_names"], dtype=str),
         test_dates=np.asarray(paths["test_dates"].astype(str), dtype=str),
+        coverage_methods=np.asarray(paths["coverage_methods"], dtype=str),
+        coverage_cube=paths["coverage_cube"],
+        width_cube=paths["width_cube"],
+        sector_ids=paths["sector_ids"],
     )
     run_info = {
         "method": "HSA-CP",

@@ -28,7 +28,7 @@ Lyon, France}}
 \maketitle
 
 \begin{abstract}
-Forecasting hundreds of financial time series creates an uncertainty-quantification trade-off: asset-wise calibration is noisy, whereas market-wide calibration can hide persistent sector heterogeneity. We introduce Hierarchical Sector-Adaptive Conformal Prediction (\method), an online wrapper combining asset, sector, and market conformal quantiles through sector-specific exponential weights and a feedback controller. Two deterministic results characterize the procedure: a finite-horizon sector calibration identity and a regret bound for the clipped normalized Hedge losses. We evaluate 121,744 one-day-ahead intervals for 501 securities from a fixed S\&P 500 snapshot. The cohort is locked before architecture selection using only January--May 2024 availability; point-model tuning ends in 2023, architecture and online-rate selection use June--December 2024, and 2025 is reserved for final evaluation. At nominal 90\% coverage, \method\ attains 90.0455\% coverage, the lowest mean interval score (0.096016), and the lowest asset-level and cross-sectional 20-day calibration errors among eight primary methods. Sector coverages range from 89.7662\% to 90.4000\%. Without re-tuning, empirical coverages at nominal 80\%, 90\%, and 95\% are 79.9588\%, 90.0455\%, and 95.1883\%. Newey--West tests with Holm correction and moving-block bootstraps support improvements over four baselines; evidence against the remaining methods is weaker. The results support causal hierarchical pooling without claiming exact conditional coverage for dependent returns.
+Forecasting hundreds of financial time series creates an uncertainty-quantification trade-off: asset-wise calibration is noisy, whereas market-wide calibration can hide persistent sector heterogeneity. We introduce Hierarchical Sector-Adaptive Conformal Prediction (\method), an online wrapper combining asset, sector, and market conformal quantiles through sector-specific exponential weights and a feedback controller. We derive an exact controller-state audit identity and specialize the standard Hedge regret bound to the implemented clipped loss; neither result implies conditional coverage. We evaluate 121,744 one-day-ahead intervals for 501 securities from a fixed S\&P 500 snapshot. The cohort is locked before architecture selection using only January--May 2024 availability; point-model tuning ends in 2023, architecture and online-rate selection use June--December 2024, and 2025 is reserved for final evaluation. At nominal 90\% coverage, \method\ attains 90.0\% coverage, the lowest mean interval score (0.0960), and the lowest asset-level and cross-sectional 20-day calibration errors among eight primary methods. Sector coverages range from 89.8\% to 90.4\%. Without re-tuning, empirical coverages at nominal 80\%, 90\%, and 95\% are 80.0\%, 90.0\%, and 95.2\%. Newey--West tests with Holm correction and moving-block bootstraps support improvements over four baselines; evidence against the remaining methods is weaker. The results support causal hierarchical pooling without claiming exact conditional coverage for dependent returns.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -55,7 +55,7 @@ Our empirical setting contains 503 securities from a May 23, 2024 S\&P 500 const
 The contributions are fourfold:
 \begin{itemize}
  \item a causal hierarchical conformal architecture combining asset, sector, and market score pools;
- \item an exact sector calibration identity, a finite-horizon corollary, and a Hedge regret theorem aligned with the implemented clipped loss;
+ \item an auditable sector-error identity and a standard Hedge bound specialized to the implemented clipped loss, without a conditional-coverage claim;
  \item a corrected anti-leakage benchmark with a pre-validation universe lock, leave-one-out sector features, training-only preprocessing, and validation-only tuning;
  \item an evaluation of eight primary methods using global and local calibration, efficiency, sector and regime robustness, HAC inference, moving-block bootstraps, three nominal levels, scale ablations, and an empirical scalability benchmark.
 \end{itemize}
@@ -69,26 +69,25 @@ Sequential methods include EnbPI's rolling ensemble residuals \cite{xu2021enbpi}
 
 Marginal coverage can hide systematic group failures. Multivalid prediction targets coverage across user-defined groups in adversarial sequences \cite{bastani2022mvp}; batch multivalid and Kandinsky CP broaden group-aware events \cite{jung2022batch,bairaktari2025kandinsky}. Recent parameter-free group-conditional online CP pursues stronger worst-case group targets \cite{bharti2026group}. In contrast, \method\ is domain-specialized: disjoint sectors are feedback groups, and hierarchical pooling targets empirical efficiency. We do not claim parameter-free or multivalid guarantees. Financial applications remain limited and include market-return control experiments and conformal stock-selection sets \cite{angelopoulos2023pid,kaya2025stocks}.
 
-\begin{table*}[t]
+\begin{table}[t]
 \centering
-\caption{Positioning relative to representative CP families; guarantees require each cited work's assumptions.}
-\label{tab:positioning}
+\caption{Notation and evaluation terms.}
+\label{tab:notation}
 \scriptsize
-\setlength{\tabcolsep}{2.5pt}
-\begin{tabular}{p{0.13\textwidth}p{0.20\textwidth}p{0.18\textwidth}p{0.16\textwidth}p{0.23\textwidth}}
+\setlength{\tabcolsep}{3.0pt}
+\begin{tabular}{ll}
 \toprule
-Family & Adaptation & Cross-series structure & Group target & Guarantee or objective\\
+Term & Plain-language meaning\\
 \midrule
-Split CP \cite{lei2018distribution} & Fixed calibration quantile & None & None & Finite-sample marginal under exchangeability\\
-EnbPI/SPCI \cite{xu2021enbpi,xu2023spci} & Rolling or conditional score model & Temporal score history & None & Coverage under stated dependence/consistency conditions\\
-ACI/AgACI \cite{gibbs2021adaptive,zaffran2022adaptive} & Error-level update/rate experts & Temporal experts & None & Long-run calibration and adaptive efficiency\\
-SAOCP/FACI \cite{bhatnagar2023saocp,gibbs2024arbitrary} & Local-regret online learning & Temporal interval experts & None & Strong/local adaptive regret and coverage\\
-Conformal PID \cite{angelopoulos2023pid} & Feedback and scorecasting & Optional external series & None & Deterministic long-run calibration conditions\\
-MVP/group OCP \cite{bastani2022mvp,bharti2026group} & Multivalid/group updates & User groups & Explicit groups & Adversarial empirical/group-conditional targets\\
-\method\ (ours) & Sector Hedge and feedback & Asset--sector--market & Fixed sectors & Identity, Hedge regret, and empirical panel study\\
+$i,t,g$ & Asset, session, and sector\\
+$q^A,q^S,q^M$ & Asset-, sector-, and market-pool thresholds\\
+$w_{g,t}$ / $c_{g,t}$ & Sector expert weights / feedback state\\
+ALCE20 & Mean asset-level 20-day coverage error\\
+XLCE20 & Mean cross-sectional 20-day coverage error\\
+HAC / MBB & Dependence-robust test / block bootstrap\\
 \bottomrule
 \end{tabular}
-\end{table*}
+\end{table}
 
 \section{Problem Formulation}
 
@@ -153,7 +152,8 @@ where $I_{g,t}$ contains observed sector assets. With $a_{g,t}=\max\{\operatorna
  \label{eq:hedge}
 \end{equation}
 
-\begin{theorem}[Hedge regret for the implemented loss]
+The next result is the standard Hedge guarantee specialized to the exact clipped loss used by the implementation; it is recorded for code--theory alignment rather than claimed as a new online-learning theorem.
+\begin{theorem}[Standard Hedge bound for the implemented loss]
 For any sequence $\mathbf z_{g,t}\in[0,B]^J$ and uniform initial weights, update \eqref{eq:hedge} satisfies
 \begin{equation}
  \sum_{t=1}^{T}\langle\mathbf w_{g,t},\mathbf z_{g,t}\rangle-
@@ -186,7 +186,7 @@ The validation-selected feedback rate is $\eta=0.05$:
  \label{eq:controller}
 \end{equation}
 
-\begin{proposition}[Exact sector calibration identity]
+\begin{proposition}[Controller audit identity]
 For any score sequence and any $T$ sessions on which sector $g$ is updated,
 \begin{equation}
  \frac1T\sum_{t=1}^{T}\bar e_{g,t}-\alpha
@@ -294,11 +294,11 @@ Valid final-evaluation intervals & 121,744\\
 
 All interval methods wrap the same pooled ridge regression \cite{hoerl1970ridge}. Features available by $t-1$ include asset lags 1, 2, and 5; lagged 5- and 21-day means and standard deviations; lagged market return; a leave-one-out equal-weight sector return; lagged VIX and market volatility; causal regime indicators; and sector indicators. The leave-one-out construction avoids mechanically reusing an asset return in its own sector feature. Standardization and the volatility floor use training data only.
 
-The ridge penalty is selected from $\{1,10,25,100\}$ using calendar 2023 only; $100$ is selected and the model is refit through 2023. It uses 583,981 training rows. On 121,744 valid 2025 asset-days, MAE is 0.014070, RMSE 0.021822, sign accuracy 0.510079, and out-of-sample $R^2$ 0.001892. The deliberately modest predictor isolates calibration effects.
+The ridge penalty is selected from $\{1,10,25,100\}$ using calendar 2023 only; $100$ is selected and the model is refit through 2023. It uses 583,981 training rows. On 121,744 valid 2025 asset-days, MAE is 0.014, RMSE 0.021, sign accuracy 0.510, and out-of-sample $R^2$ 0.002. The deliberately modest predictor isolates calibration effects. As a model-dependence check, a validation-selected histogram gradient booster improves 2023 validation MAE but performs worse in 2025 (MAE .014; $R^2=-.190$). Wrapped around it, HSA-CP still ranks first among the eight calibrators in interval score (.103), ALCE20 (.048), and XLCE20 (.019), with 90.03\% coverage. Thus relative calibration gains persist, although absolute interval efficiency depends on point-forecast quality.
 
 \subsection{Baselines and Validation Rules}
 
-We compare SplitCP, 126-day RollingCP, ACI \cite{gibbs2021adaptive}, asset-level proportional control (PControl) \cite{angelopoulos2023pid}, 63-day SectorCP, GraphCP using five training-period correlation neighbors, RegimeCP using causal VIX states, and \method. ACI's rate is selected from $\{.001,.0025,.005,.01,.02\}$ and PControl's from $\{.01,.025,.05,.10,.20\}$ using June--December 2024 only; selected values are .005 and .05. \method's controller and Hedge rates are .05 and .04, also chosen without 2025 outcomes.
+We compare SplitCP, 126-day RollingCP, ACI \cite{gibbs2021adaptive}, asset-level proportional control (PControl) \cite{angelopoulos2023pid}, 63-day SectorCP, GraphCP using five training-period correlation neighbors, RegimeCP using causal VIX states, and \method. ACI's rate is selected from $\{.001,.002,.005,.01,.02\}$ and PControl's from $\{.01,.025,.05,.10,.20\}$ using June--December 2024 only; selected values are .005 and .05. \method's controller and Hedge rates are .05 and .04, also chosen without 2025 outcomes.
 
 The controller is a constitutive component tied to Proposition~1, so controller-free mixtures are diagnostic ablations rather than architecture candidates. Among controller-preserving variants with validation coverage gap at most .005, interval score selects asset--sector--market \method. Graph and regime experts are rejected before final evaluation.
 
@@ -310,7 +310,7 @@ For each comparator, we average interval score across observed assets by date an
 
 \subsection{Overall Calibration and Efficiency}
 
-Table~\ref{tab:main} reports the corrected 2025 evaluation. \method\ reaches 0.900455 coverage, a 0.000455 gap from target, and the lowest interval score, ALCE20, and XLCE20 among the eight primary methods. Score reductions range from 1.10\% versus SectorCP to 2.43\% versus RegimeCP. ACI has a slightly smaller marginal coverage gap, but larger local errors and score. The result is therefore not merely wider intervals achieving nominal coverage.
+Table~\ref{tab:main} reports the corrected 2025 evaluation. \method\ reaches 0.900 coverage, a 0.0005 gap from target, and the lowest interval score, ALCE20, and XLCE20 among the eight primary methods. Across 121,744 asset--day intervals, score reductions range from 1.10\% versus SectorCP to 2.43\% versus RegimeCP, or 10.7--24.0 basis points of interval-score loss per asset--day. This is a statistical efficiency gain, not a direct capital saving; its economic value depends on exposures and the downstream risk decision. ACI has a slightly smaller marginal coverage gap, but larger local errors and score. The result is therefore not merely wider intervals achieving nominal coverage.
 
 \begin{table*}[t]
 \centering
@@ -322,14 +322,14 @@ Table~\ref{tab:main} reports the corrected 2025 evaluation. \method\ reaches 0.9
 \toprule
 Method & Coverage & Gap & Mean width & Median width & Score & ALCE20 & XLCE20 & Worst sector\\
 \midrule
-SplitCP   & .910739 & .010739 & .067636 & .057775 & .097656 & .050731 & .022566 & .904000\\
-RollingCP & .904940 & .004940 & .066810 & .056737 & .097991 & .049374 & .023006 & .901968\\
-ACI       & .899708 & \textbf{.000292} & .066097 & .055770 & .098324 & .049864 & .023523 & .897298\\
-PControl  & .903223 & .003223 & .065511 & .055894 & .097160 & .048231 & .022243 & .900000\\
-SectorCP  & .898057 & .001943 & \textbf{.064795} & .054744 & .097088 & .051046 & .024715 & .894078\\
-GraphCP   & .899116 & .000884 & .065955 & .055424 & .097790 & .050896 & .024879 & .894105\\
-RegimeCP  & .903240 & .003240 & .066897 & .056774 & .098412 & .048905 & .020391 & .897994\\
-\method   & .900455 & .000455 & .065386 & \textbf{.054555} & \textbf{.096016} & \textbf{.047270} & \textbf{.017636} & .897662\\
+SplitCP   & .911 & .0107 & .0676 & .0578 & .0977 & .0507 & .0226 & .904\\
+RollingCP & .905 & .0049 & .0668 & .0567 & .0980 & .0494 & .0230 & .902\\
+ACI       & .900 & \textbf{.0003} & .0661 & .0558 & .0983 & .0499 & .0235 & .897\\
+PControl  & .903 & .0032 & .0655 & .0559 & .0972 & .0482 & .0222 & .900\\
+SectorCP  & .898 & .0019 & \textbf{.0648} & .0547 & .0971 & .0510 & .0247 & .894\\
+GraphCP   & .899 & .0009 & .0660 & .0554 & .0978 & .0509 & .0249 & .894\\
+RegimeCP  & .903 & .0032 & .0669 & .0568 & .0984 & .0489 & .0204 & .898\\
+\method   & .900 & .0005 & .0654 & \textbf{.0546} & \textbf{.0960} & \textbf{.0473} & \textbf{.0176} & .898\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -355,20 +355,20 @@ Table~\ref{tab:stats} separates HAC significance from block-length robustness. R
 \toprule
 Comparator & Mean diff. & Holm HAC $p$ & $L_5$ & $L_{10}$ & $L_{20}$ & Robust all $b$\\
 \midrule
-RegimeCP  & .002396 & .0124 & .000718 & .000933 & .001046 & Yes\\
-ACI       & .002308 & .0124 & .000717 & .000985 & .001015 & Yes\\
-RollingCP & .001974 & .0279 & .000290 & .000616 & .000717 & Yes\\
-GraphCP   & .001774 & .0437 & .000365 & .000453 & .000371 & Yes\\
-SplitCP   & .001640 & .0491 & $-.000231$ & .000235 & .000477 & No\\
-PControl  & .001144 & .1474 & $-.000695$ & $-.000224$ & $-.000013$ & No\\
-SectorCP  & .001072 & .1474 & $-.000478$ & $-.000162$ & $-.000160$ & No\\
+RegimeCP  & .0024 & .012 & .0007 & .0009 & .0010 & Yes\\
+ACI       & .0023 & .012 & .0007 & .0010 & .0010 & Yes\\
+RollingCP & .0020 & .028 & .0003 & .0006 & .0007 & Yes\\
+GraphCP   & .0018 & .044 & .0004 & .0005 & .0004 & Yes\\
+SplitCP   & .0016 & .049 & $-.0002$ & .0002 & .0005 & No\\
+PControl  & .0011 & .147 & $-.0007$ & $-.0002$ & $-.0000$ & No\\
+SectorCP  & .0011 & .147 & $-.0005$ & $-.0002$ & $-.0002$ & No\\
 \bottomrule
 \end{tabular}
 \end{table*}
 
 \subsection{Sector, Regime, and Online Behavior}
 
-All sector coverages lie between .897662 and .904000 (Table~\ref{tab:sectors}). Across causal VIX regimes, \method\ covers .912331 on 59 low-volatility days, .892895 on 95 normal days, and .900637 on 96 high days; widths rise from .054772 to .077892. The normal-regime shortfall and asset-coverage 10th percentile of .8864 show that sector feedback is not per-asset or regime-conditional calibration.
+All sector coverages lie between .897 and .904 (Table~\ref{tab:sectors}). Across causal VIX regimes, \method\ covers .912 on 59 low-volatility days, .892 on 95 normal days, and .900 on 96 high days; widths rise from .054 to .077. The normal-regime shortfall and asset-coverage 10th percentile of .886 show that sector feedback is not per-asset or regime-conditional calibration. Across 11 sectors, mean absolute deviation from .90 is .00188 for \method, .00178 for ACI, .00245 for SectorCP, and .00418 for PControl. Paired 10-day moving-block intervals for every comparator-minus-HSA deviation contain zero; the sector advantage is therefore descriptive, not statistically established. Whole-day resampling preserves each contemporaneous cross-section.
 
 \begin{table}[t]
 \centering
@@ -380,17 +380,17 @@ All sector coverages lie between .897662 and .904000 (Table~\ref{tab:sectors}). 
 \toprule
 Sector & $N$ & Coverage & Width & Score\\
 \midrule
-Communication Services & 22 & .904000 & .065264 & .095416\\
-Consumer Discretionary & 52 & .901462 & .073708 & .107728\\
-Consumer Staples & 38 & .901667 & .057008 & .082351\\
-Energy & 22 & .902526 & .071391 & .099067\\
-Financials & 71 & .898805 & .055013 & .080280\\
-Health Care & 63 & .902164 & .069360 & .104940\\
-Industrials & 78 & .897662 & .061224 & .091153\\
-Information Technology & 65 & .899238 & .083511 & .125114\\
-Materials & 28 & .902074 & .072017 & .106020\\
-Real Estate & 31 & .901935 & .051936 & .072883\\
-Utilities & 31 & .900516 & .053998 & .075597\\
+Communication Services & 22 & .904 & .065 & .095\\
+Consumer Discretionary & 52 & .901 & .073 & .107\\
+Consumer Staples & 38 & .901 & .057 & .082\\
+Energy & 22 & .902 & .071 & .099\\
+Financials & 71 & .898 & .055 & .080\\
+Health Care & 63 & .902 & .069 & .104\\
+Industrials & 78 & .897 & .061 & .091\\
+Information Technology & 65 & .899 & .083 & .125\\
+Materials & 28 & .902 & .072 & .106\\
+Real Estate & 31 & .901 & .051 & .072\\
+Utilities & 31 & .900 & .053 & .075\\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -398,15 +398,15 @@ Utilities & 31 & .900516 & .053998 & .075597\\
 \begin{figure*}[t]
   \centering
   \includegraphics[width=0.94\textwidth]{fig3_sector_and_weights.pdf}
-  \caption{(a) Final sector coverages. (b) Ten-day smoothed expert weights averaged across sectors.}
+  \caption{(a) Absolute sector coverage gaps for four methods; lower is better. (b) Ten-day smoothed expert weights averaged across sectors.}
   \label{fig:robustness}
 \end{figure*}
 
-Mean 2025 weights are .301 asset, .375 sector, and .324 market. They remain mixed, although the benefit of learned weights is modest. Equal weights score .084514 versus .084512 on validation and .095954 versus .096016 in final evaluation. Hedge therefore supplies an online no-regret mechanism but not a material empirical advantage in this sample.
+Mean 2025 weights are .301 asset, .375 sector, and .324 market. They remain mixed, although the benefit of learned weights is modest. Equal and learned weights differ by less than $10^{-4}$ in interval score on both validation and final evaluation. Hedge therefore supplies an online no-regret mechanism but not a material empirical advantage in this sample.
 
 \subsection{Ablations and Sensitivity}
 
-Table~\ref{tab:ablation} records validation rather than test-driven choices. Controller-free aggregation has a lower validation score (.084430) and remains within the .005 coverage tolerance, but it is excluded from architecture selection because feedback and Proposition~1 define the proposed method. This is a calibration--efficiency trade-off, not evidence that every component improves interval score. Among controller-preserving variants, \method\ has the best eligible validation score. Graph and regime additions worsen it.
+Table~\ref{tab:ablation} records validation rather than test-driven choices. The newly added joint ablation with equal weights and no controller has a slightly lower validation score than \method\ (.084 versus .084). On the held-out test it likewise scores .095 versus .096, but its coverage gap is .003 rather than .000. Feedback therefore improves target tracking at a small efficiency cost, whereas learned Hedge weights offer no material gain over equal weights in this sample. We retain Hedge for online expert tracking and its clipped-loss regret guarantee, not as the empirical source of improvement; the principal contribution is hierarchical pooling with auditable sector feedback.
 
 \begin{table}[t]
 \centering
@@ -418,20 +418,29 @@ Table~\ref{tab:ablation} records validation rather than test-driven choices. Con
 \toprule
 Variant & Coverage & Gap & Width & Score\\
 \midrule
-No controller (diagnostic) & .904399 & .004399 & .057854 & \textbf{.084430}\\
-\method\ (selected) & .903700 & .003700 & .057840 & .084512\\
-Equal weights & .903798 & .003798 & .057875 & .084514\\
-Add graph expert & .904119 & .004119 & .057823 & .084565\\
-No sector expert & .903589 & .003589 & .058092 & .084699\\
-Sector controller only & .903253 & .003253 & .057594 & .084712\\
-No global expert & .903924 & .003924 & .057850 & .084807\\
-Add regime expert & .904050 & .004050 & .058169 & .084810\\
-Asset controller only & .904985 & .004985 & .058507 & .085218\\
+No controller (Hedge) & .9044 & .0044 & .0579 & \textbf{.08443}\\
+Equal weights, no controller & .9046 & .0046 & .0579 & .08443\\
+\method\ (selected) & .9037 & .0037 & .0578 & .08451\\
+Equal weights, controller & .9038 & .0038 & .0579 & .08451\\
+Add graph expert & .9041 & .0041 & .0578 & .08457\\
+No sector expert & .9036 & .0036 & .0581 & .08470\\
+Sector controller only & .9033 & .0033 & .0576 & .08471\\
+No global expert & .9039 & .0039 & .0579 & .08481\\
+Add regime expert & .9041 & .0041 & .0582 & .08481\\
+Asset controller only & .9050 & .0050 & .0585 & .08522\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-Validation-only controller rates from .05 to .25 yield coverage .903700--.902820 and scores .084512--.084884; .05 is selected. Hedge rates .01--.16 change score by less than $2\times10^{-6}$ around .084513. No rate is retuned on 2025. In final-evaluation diagnostics, removing the controller scores .095923 but covers .902747; this post-selection ablation is reported without redesigning the method.
+Validation-only controller rates from .05 to .25 yield coverage .903--.902 and scores .084--.084; .05 is selected. Hedge rates .01--.16 change score by less than $2\times10^{-6}$ around .084. A $3\times3\times3$ window grid over asset/sector/market histories selects $(252,126,5)$ on validation. Frozen on 2025, it marginally improves score (.095 versus .096) and XLCE20 (.017 versus .017), but worsens ALCE20 (.047 versus .047) and asset-coverage P10 (.884 versus .886); no configuration uniformly dominates the pre-specified $(126,63,5)$ windows. No rate or window is selected on 2025.
+
+We also evaluate the published binary-group POGO update \cite{bharti2026group}
+independently on each asset stream, with all same-day intervals formed before
+any update. This parameter-free asset-conditional comparator attains .872
+coverage, .105 interval score, and asset-coverage P10 of .868 in 2025, versus
+.900, .096, and .886 for \method. A separate causal asset-plus-sector feedback
+grid selects zero additional asset correction on validation. Thus finer group
+feedback does not improve this panel; we make no multivalid-coverage claim.
 
 \subsection{Nominal Levels, Scale, and Scalability}
 
@@ -439,7 +448,7 @@ Table~\ref{tab:extended} applies the frozen architecture to two additional nomin
 
 The cohort result is also insensitive to the questioned May cutoff under the primary availability rule. Cutoffs April 30, May 23, and May 31 combined with thresholds 98\% or 99\% all select the same 501 securities (Jaccard similarity 1.0). A strict 100\% rule at May 31 removes 14 securities because of isolated late-May missing returns; this motivates the pre-specified 99\% tolerance rather than claiming May 31 is an optimal date.
 
-The reference Python calibration layer processes the full 501-asset cross-section in 2.725 ms per session (median over five repeats of 60 sessions), versus .917 ms for 50 assets. The empirical log--log slope is .469 because fixed sector overhead and vectorized pooling dominate at small $N$; this is a machine-specific implementation benchmark, not an asymptotic complexity claim. The algorithmic aggregation/update cost after quantile construction remains $O(NJ+GJ)$.
+An extended compute-only benchmark deterministically replicates observed columns while preserving the 11-sector layout. Median calibration time is 3.01 ms at 501 assets, 5.05 ms at 1,000, 9.50 ms at 2,000, and 25.02 ms at 5,000 (about 200,000 intervals/second); the empirical log--log slope across 50--5,000 assets is .696. Replicated panels test computational scaling only, not financial generalization or point-model cost. The aggregation/update cost after quantile construction remains $O(NJ+GJ)$ and sectors can be updated in parallel.
 
 \begin{table*}[t]
 \centering
@@ -451,20 +460,20 @@ The reference Python calibration layer processes the full 501-asset cross-sectio
 \toprule
 Panel & Configuration & Coverage & Gap & Mean width & Score & ALCE20 & XLCE20\\
 \midrule
-A: nominal level & 80\% & .799588 & .000412 & .046479 & .073322 & .069107 & .026067\\
- & 90\% (primary) & .900455 & .000455 & .065386 & .096016 & .047270 & .017636\\
- & 95\% & .951883 & .001883 & .086959 & .123592 & .030956 & .011231\\
+A: nominal level & 80\% & .799 & .000 & .046 & .073 & .069 & .026\\
+ & 90\% (primary) & .900 & .000 & .065 & .096 & .047 & .017\\
+ & 95\% & .951 & .001 & .086 & .123 & .030 & .011\\
 \midrule
-B: scale at 90\% & Lagged EWM21 (primary) & .900455 & .000455 & .065386 & .096016 & .047270 & .017636\\
- & Lagged rolling-21 & .901145 & .001145 & .066764 & .097620 & .049253 & .016507\\
- & No volatility normalization & .899437 & .000563 & .065035 & .096813 & .053141 & .008987\\
+B: scale at 90\% & Lagged EWM21 (primary) & .900 & .000 & .065 & .096 & .047 & .017\\
+ & Lagged rolling-21 & .901 & .001 & .066 & .097 & .049 & .016\\
+ & No volatility normalization & .899 & .000 & .065 & .096 & .053 & .008\\
 \midrule
 \multicolumn{2}{l}{C: assets $N$} & \multicolumn{2}{c}{Median ms/session} & \multicolumn{2}{c}{Intervals/second} & \multicolumn{2}{c}{Runtime vs. $N=50$}\\
 \cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}
-\multicolumn{2}{l}{50}  & \multicolumn{2}{c}{.917} & \multicolumn{2}{c}{54,536}  & \multicolumn{2}{c}{1.000}\\
-\multicolumn{2}{l}{100} & \multicolumn{2}{c}{1.130} & \multicolumn{2}{c}{88,505}  & \multicolumn{2}{c}{1.232}\\
-\multicolumn{2}{l}{250} & \multicolumn{2}{c}{1.705} & \multicolumn{2}{c}{146,649} & \multicolumn{2}{c}{1.859}\\
-\multicolumn{2}{l}{501} & \multicolumn{2}{c}{2.725} & \multicolumn{2}{c}{183,851} & \multicolumn{2}{c}{2.972}\\
+\multicolumn{2}{l}{501} & \multicolumn{2}{c}{3.012} & \multicolumn{2}{c}{166,357} & \multicolumn{2}{c}{3.048}\\
+\multicolumn{2}{l}{2,000$^{*}$} & \multicolumn{2}{c}{9.503} & \multicolumn{2}{c}{210,462} & \multicolumn{2}{c}{9.618}\\
+\multicolumn{2}{l}{5,000$^{*}$} & \multicolumn{2}{c}{25.022} & \multicolumn{2}{c}{199,823} & \multicolumn{2}{c}{25.326}\\
+\multicolumn{8}{l}{\scriptsize $^{*}$Deterministic column replication for computational scaling only.}\\
 \bottomrule
 \end{tabular}
 \end{table*}
@@ -473,9 +482,9 @@ B: scale at 90\% & Lagged EWM21 (primary) & .900455 & .000455 & .065386 & .09601
 
 The experiment shows that a large cross-section can stabilize uncertainty estimates even when point predictability is weak. The short market expert reacts quickly, the sector expert captures persistent group structure, and the asset expert preserves idiosyncrasy. Sector feedback makes the average error mechanically auditable through Proposition~1. Validation also supplies negative evidence: correlation-neighbor and regime experts do not improve the selected architecture.
 
-The effect must be stated conservatively. \method\ has the best primary-method score and local calibration metrics, but block-length-robust evidence holds for four comparators. Controller-free and equal-weight ablations are competitive; the contribution is therefore the auditable hierarchical control framework rather than universal domination.
+The effect must be stated conservatively. \method\ has the best primary-method score and local calibration metrics, but block-length-robust evidence holds for four comparators. Controller-free and equal-weight ablations are competitive; the contribution is therefore the auditable hierarchical control framework rather than universal domination. The gains are incremental improvements in repeated large-panel uncertainty monitoring, not evidence of trading profits or regulatory-capital reductions.
 
-The fixed 2024 snapshot creates historical-selection and survivorship bias. Future studies should use point-in-time membership and institutional corporate-action identifiers. Public adjusted-close data can be revised by vendors. The 2025 period has only 250 sessions, and one validation year cannot represent every market state. Multiple rolling-origin years, other markets, and longer horizons are necessary.
+We additionally run a strictly chronological 2024 fold: the point model is trained through 2022, all online rates are selected on 2023, and 123,676 intervals for 499 assets are then evaluated without re-selection. HSA-CP obtains 90.11\% coverage and ranks first for ALCE20 (.045) and XLCE20 (.013), but third for interval score (.082), behind PControl (.081) and SectorCP (.081). The two folds therefore support temporal stability of local calibration, not uniform score dominance. Both retain the fixed May 2024 snapshot and thus remain subject to historical-selection and survivorship bias; point-in-time membership, other markets, and longer horizons remain necessary.
 
 The theory is also limited. The controller identity does not bound its own state for arbitrary unbounded scores; the Hedge theorem concerns normalized clipped expert loss. Neither provides finite-sample conditional coverage for dependent returns. Fixed disjoint sectors do not ensure asset-, regime-, or intersectional-group coverage. Parameter-free group-conditional online CP is an important future comparator \cite{bharti2026group}.
 
@@ -483,7 +492,7 @@ The reproducibility package records the snapshot and mappings, corrected cohort 
 
 \section{Conclusion}
 
-We presented \method, a causal online conformal wrapper for a large panel of equity returns. It combines asset, sector, and market quantiles, tracks clipped expert losses, and corrects sector-average errors through feedback. The corrected experiment locks 501 securities before validation and evaluates 121,744 intervals in 2025. \method\ achieves 90.0455\% coverage, the lowest primary-method interval score, ALCE20, and XLCE20, and sector coverage from 89.7662\% to 90.4000\%. Dependence-aware inference supports robust improvements over four baselines while revealing weaker evidence against the closest methods. Hierarchical pooling is a practical middle ground between noisy asset calibration and overly broad market pooling, provided both its empirical gains and theoretical limits are reported transparently.
+We presented \method, a causal online conformal wrapper for a large panel of equity returns. It combines asset, sector, and market quantiles, tracks clipped expert losses, and corrects sector-average errors through feedback. The corrected experiment locks 501 securities before validation and evaluates 121,744 intervals in 2025. \method\ achieves 90.0\% coverage, the lowest primary-method interval score, ALCE20, and XLCE20, and sector coverage from 89.8\% to 90.4\%. Dependence-aware inference supports robust improvements over four baselines while revealing weaker evidence against the closest methods. Hierarchical pooling is a practical middle ground between noisy asset calibration and overly broad market pooling, provided both its empirical gains and theoretical limits are reported transparently.
 
 \IfFileExists{IEEEtran.bst}{\bibliographystyle{IEEEtran}}{\bibliographystyle{ieeetr}}
 \bibliography{references}
