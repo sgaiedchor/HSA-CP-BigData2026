@@ -1,8 +1,17 @@
 # HSA-CP: Hierarchical Sector-Adaptive Conformal Prediction
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24018776.svg)](https://doi.org/10.5281/zenodo.24018776)
 
 This repository contains the corrected IEEE BigData 2026 manuscript, the causal
 experimental pipeline, locked outputs, and supporting workbooks for HSA-CP.
+## Archived release
 
+The exact reproducibility package supporting the reported experiments is
+permanently archived on Zenodo.
+
+- **Version:** v1.0.0
+- **Version-specific DOI:** https://doi.org/10.5281/zenodo.24018777
+- **Concept DOI for all versions:** https://doi.org/10.5281/zenodo.24018776
+- **GitHub repository:** https://github.com/sgaiedchor/HSA-CP-BigData2026
 ## Main corrected result
 
 On 121,744 valid one-day-ahead intervals for a 501-security fixed S&P 500
